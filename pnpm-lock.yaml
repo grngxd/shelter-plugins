@@ -22,7 +22,7 @@ importers:
         specifier: ^1.8.20
         version: 1.8.20
 
-  plugins/themes:
+  plugins/tarp:
     dependencies:
       '@uwu/monaco-solid':
         specifier: ^1.4.0
