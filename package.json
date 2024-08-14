@@ -9,7 +9,7 @@
     "plugins/*"
   ],
   "scripts": {
-    "dev:themes": "pnpm lune dev plugins/themes"
+    "dev:tarp": "pnpm lune dev plugins/tarp"
   },
   "dependencies": {
     "@emotion/css": "^11.13.0"
