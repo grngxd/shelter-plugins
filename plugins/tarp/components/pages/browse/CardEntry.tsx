@@ -1,11 +1,14 @@
-import { css } from "@emotion/css"
-import randomColor from "randomcolor"
-import { Theme } from "../../../repos"
-import Tag from "../universal/Tag"
+import { css } from "@emotion/css";
+import debounce from "lodash-es/debounce";
+import randomColor from "randomcolor";
+import { Theme } from "../../../repos";
+import Tag from "../universal/Tag";
 
 const {
     solid: {
-        For
+        For,
+        createSignal,
+        createEffect
     },
     ui: {
             Text,
@@ -19,17 +22,34 @@ const {
             ModalBody,
             Header,
             HeaderTags,
-        }
+    },
+    plugin: { store },
+    util: { log },
 } = shelter
 
 interface Props {
     theme: Theme
 }
 
+const saveInstalledThemeDebounced = debounce((themeLink) => (store.installedTheme = themeLink), 250);
+
 export default ({ theme }: Props) => {
+    const [installed, setInstalled] = createSignal(false)
+
     interface ModalProps {
         close: () => void
     }
+
+    createEffect(() => {
+        if (!installed()) return;
+        saveInstalledThemeDebounced(theme.css_link);
+    }, [installed()]);
+
+    createEffect(() => {
+        setInstalled(store.installedTheme === theme.css_link);
+
+        log("installed theme " + store.installedTheme);
+    }, [store.installedTheme]);
 
     const Modal = ({ close }: ModalProps) => {
         return (
@@ -98,7 +118,7 @@ export default ({ theme }: Props) => {
                                     gap: "0.125rem",
                                 })}
                             >
-                                <For each={theme.tags.slice(0, 3).sort(() => Math.random() - 0.5)}>
+                                <For each={(theme.tags && Array.isArray(theme.tags)) ? theme.tags.slice(0, 3).sort(() => Math.random() - 0.5) : []}>
                                     {(tag) => (
                                         <Tag background={randomColor({
                                             luminosity: "dark",
@@ -115,10 +135,20 @@ export default ({ theme }: Props) => {
                             <Text>{theme.description}</Text>
                         </div>
 
-                        <Button color={ButtonColors.BRAND} look={ButtonLooks.OUTLINED} size={ButtonSizes.MAX} class={css({
+                        <Button color={installed() ? ButtonColors.RED : ButtonColors.BRAND} look={ButtonLooks.FILLED} size={ButtonSizes.MAX} class={css({
                             padding: "0.5rem 0 !important",
                             borderRadius: "0.5rem !important",
-                        })}>Install</Button>
+                        })}
+                        onClick={() => {
+                            if (installed()) {
+                                store.installedTheme = "";
+                                setInstalled(false);
+                            } else {
+                                setInstalled(true);
+                            }
+                        }}>
+                            {installed() ? "Uninstall" : "Install"}
+                        </Button>
                     </div>
                 </div>
             </div>

@@ -4,7 +4,7 @@ const {
     util: { log },
     plugin: { store },
     solid: { createEffect },
-    ui: { injectCss },
+    ui: { showToast },
     flux: { dispatcher },
 } = shelter;
 
@@ -12,13 +12,17 @@ let cleanup: (() => void)[] = [];
 let quickStyle;
 
 export async function onLoad() {
-    repos.registerPacks();
+    await repos.registerPacks();
     handleQuickCSS();
     handleThemes();
-    handleThemeEffect();
     registerSettingsSection();
 
     handleRepos();
+    
+    showToast({
+        title: "tarp",
+        content: "tarp has finished loading",
+    });
 }
 
 export function onUnload() {
@@ -71,29 +75,29 @@ function handleRepos() {
 }
 
 function handleThemes() {
-    const head = document.getElementsByTagName("head")[0];
-    if (head) {
-        const existingTheme = document.getElementById("grng.theme");
-        if (existingTheme) {
-            existingTheme.remove();
+    createEffect(() => {
+        const head = document.getElementsByTagName("head")[0];
+        if (head) {
+            const existingTheme = document.getElementById("grng.theme");
+            if (existingTheme) {
+                existingTheme.remove();
+            }
+
+            if (!store.installedTheme) {
+                store.installedTheme = "";
+            }
+
+            if (!store.themes) {
+                store.themes = [];
+            }
+
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = store.installedTheme || "";
+            link.id = "grng.theme";
+            head.appendChild(link);
         }
-
-        if (!store.enabledTheme) {
-            store.enabledTheme = "";
-        }
-
-        if (!store.themes) {
-            store.themes = [];
-        }
-
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = store.enabledTheme || "";
-        link.id = "grng.theme";
-        head.appendChild(link);
-    }
-
-    handleThemeEffect();
+    }, [store.installedTheme]);
 }
 
 function handleQuickCSSEffect() {
@@ -104,24 +108,6 @@ function handleQuickCSSEffect() {
         quickStyle = store.quickCSS;
         quickStyleElement.innerHTML = quickStyle;
     }, [store.quickCSS]);
-}
-
-function handleThemeEffect() {
-    createEffect(() => {
-        const head = document.getElementsByTagName("head")[0];
-        if (head) {
-            const existingTheme = document.getElementById("grng.theme");
-            if (existingTheme) {
-                existingTheme.remove();
-            }
-
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = store.enabledTheme || "";
-            link.id = "grng.theme";
-            head.appendChild(link);
-        }
-    }, [store.enabledTheme]);
 }
 
 function registerSettingsSection() {

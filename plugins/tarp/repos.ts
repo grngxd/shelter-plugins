@@ -35,12 +35,13 @@ export const getOfficialPacks = async (cache = true) : Promise<Pack[]> => {
     
     const tarp = await fetch("https://raw.githubusercontent.com/grngxd/tarp-themes/main/themes.json").then((res) => res.json());
     OfficialPacks = [tarp];
+    store.officialPacks = [tarp];
     return [tarp];
 };
 
 // Should be called on plugin load and can only be run once
 export const registerPacks = async () => {
-    store.officialPacks = await getOfficialPacks();
+    store.officialPacks = await getOfficialPacks(false);
 };
 
 export default {

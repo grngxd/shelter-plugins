@@ -33,6 +33,12 @@ const BrowsePage = () => {
         setOfficialThemes((store.officialPacks as Pack[]).flatMap((pack) => pack.themes));
     });
 
+    createEffect(() => {
+        log("store official packs")
+        log(store.officialPacks);
+        setOfficialThemes((store.officialPacks as Pack[]).flatMap((pack) => pack.themes));
+    }, [store.officialPacks]);
+
     return (
         <>
             <TextBox

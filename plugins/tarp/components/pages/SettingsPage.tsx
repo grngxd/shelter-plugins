@@ -12,7 +12,7 @@ const {
         Button
     },
     plugin: { store },
-    solid: { createSignal, createEffect, onCleanup },
+    solid: { createSignal, createEffect, onMount },
 } = shelter;
 
 const saveThemeListDebounced = debounce((themeList) => (store.themes = themeList), 250);
