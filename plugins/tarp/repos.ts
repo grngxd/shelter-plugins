@@ -2,47 +2,6 @@ const {
     plugin: { store }
 } = shelter;
 
-export let OfficialPacks: Pack[] = [];
-let registered = false;
-
-export const getOfficialPacks = async (cache = true) : Promise<Pack[]> => {
-    if (cache) {
-        const promise = new Promise<Pack[]>((resolve) => {
-            const interval = setInterval(() => {
-                if (OfficialPacks.length > 0) {
-                    clearInterval(interval);
-                    resolve(OfficialPacks);
-                }
-            }, 100);
-        });
-        return promise;
-    }
-    
-    const tarp = await fetch("https://raw.githubusercontent.com/grngxd/tarp-themes/main/themes.json").then((res) => res.json());
-    OfficialPacks = [tarp];
-    return [tarp];
-};
-
-// Should be called on plugin load and can only be run once
-export const registerPacks = async () => {
-    if (registered) return;
-    await getOfficialPacks(false)
-        .then((repos) => {
-            registered = true;
-        })
-        .catch((e) => {
-            console.error(e);
-        });
-    store.officialPacks = OfficialPacks;
-    return OfficialPacks;
-};
-
-export default {
-    getOfficialPacks,
-    registerPacks,
-    OfficialPacks
-};
-
 export type Pack = {
     meta: {
         name: string;
@@ -63,4 +22,29 @@ export type Theme = {
     preview?: string;
     tags?: string[];
     source?: string;
+};
+
+
+export let OfficialPacks: Pack[] = [];
+let registered = false;
+
+export const getOfficialPacks = async (cache = true) : Promise<Pack[]> => {
+    if (cache) {
+        return store.officialPacks;
+    }
+    
+    const tarp = await fetch("https://raw.githubusercontent.com/grngxd/tarp-themes/main/themes.json").then((res) => res.json());
+    OfficialPacks = [tarp];
+    return [tarp];
+};
+
+// Should be called on plugin load and can only be run once
+export const registerPacks = async () => {
+    store.officialPacks = await getOfficialPacks();
+};
+
+export default {
+    getOfficialPacks,
+    registerPacks,
+    OfficialPacks
 };

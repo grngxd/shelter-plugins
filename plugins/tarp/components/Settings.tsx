@@ -1,5 +1,6 @@
 const { Header, HeaderTags, Text, Divider } = shelter.ui;
 import styles from "../css/styles";
+import repos from "../repos";
 import BrowsePage from "./pages/BrowsePage";
 import CssEditorPage from "./pages/CssEditorPage";
 import PacksPage from "./pages/PacksPage";
@@ -12,6 +13,9 @@ export default () => {
 		{ Title: "Editor", Page: CssEditorPage },
 		{ Title: "Settings", Page: SettingsPage },
 	]
+
+	repos.registerPacks();
+	
     return (
         <>
 			<Header tag={HeaderTags.H1}>Theme Browser</Header>

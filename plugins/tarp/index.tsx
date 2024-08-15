@@ -64,6 +64,10 @@ function handleRepos() {
     if (!Array.isArray(store.packs)) {
         store.packs = [];
     }
+
+    if (!Array.isArray(store.officialPacks)) {
+        store.officialPacks = [];
+    }
 }
 
 function handleThemes() {
