@@ -17,7 +17,7 @@ adds theming support to shelter.
 
 `https://grngxd.github.io/shelter-plugins/tarp/`
 
-<img alt="preview" src="https://us-east-1.tixte.net/uploads/moni.wants.solutions/Discord_paCZdYUaAm.gif" height="360px">
+<img alt="preview" src="https://us-east-1.tixte.net/uploads/moni.wants.solutions/Ley5NTwu2n.gif" height="360px">
 
 ##### more coming soon!
 
