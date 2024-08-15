@@ -22,9 +22,10 @@ const containerStyle = css({
 const BrowsePage = () => {
     const [search, setSearch] = createSignal("");
     const [officialThemes, setOfficialThemes] = createSignal([]);
+    const [themes, setThemes] = createSignal([]);
+    const [filteredThemes, setFilteredThemes] = createSignal([]);
+
     createEffect(() => {
-        log("search")
-        log(search());
         log("store official packs")
         log(store.officialPacks);
         setOfficialThemes((store.officialPacks as Pack[]).flatMap((pack) => pack.themes));
@@ -36,6 +37,29 @@ const BrowsePage = () => {
         setOfficialThemes((store.officialPacks as Pack[]).flatMap((pack) => pack.themes));
     }, [store.officialPacks]);
 
+    createEffect(() => {
+        const filterThemes = (theme: Theme) => {
+            const searchLower = search().toLowerCase() || "";
+            return (
+                (theme.name && theme.name.toLowerCase().includes(searchLower)) ||
+                (theme.description && theme.description.toLowerCase().includes(searchLower)) ||
+                (theme.author && theme.author.toLowerCase().includes(searchLower)) ||
+                (Array.isArray(theme.tags) && theme.tags.some((tag) => tag.toLowerCase().includes(searchLower)))
+            );
+        };
+
+        setFilteredThemes([
+            ...officialThemes().filter(filterThemes) || [],
+            ...themes().filter(filterThemes) || [],
+        ]);
+    }, [search, themes, officialThemes]);
+
+    createEffect(() => {
+        log("store packs")
+        log(store.packs);
+        setThemes((store.packs as Pack[]).flatMap((pack) => pack.themes));
+    });
+
     return (
         <>
             <TextBox
@@ -44,7 +68,7 @@ const BrowsePage = () => {
                 onInput={setSearch}
             />
             <div class={containerStyle}>
-                <For each={officialThemes()}>
+                <For each={filteredThemes().length > 0 ? filteredThemes() : [...officialThemes(), ...themes()]}>
                     {(theme: Theme) => (
                         <CardEntry theme={theme} />
                     )}

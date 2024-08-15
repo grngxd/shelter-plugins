@@ -66,16 +66,16 @@ export default ({ theme }: Props) => {
         )
     }
     return (
-            <>
-                <div class={css({
-                    display: "flex",
-                    flexDirection: "column",
-                    borderRadius: "1rem",
-                    overflow: "clip",
-                    width: "100%",
-                    height: "100%",
-                })}>
-                    <a onClick={() => openModal(Modal)}>
+        <>
+            <div class={css({
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: "1rem",
+                overflow: "clip",
+                width: "100%",
+                height: "100%",
+            })}>
+                <a onClick={() => openModal(Modal)}>
                     <img src={theme.preview} alt={theme.name} class={css({
                         width: "100%",
                         height: "12rem",
@@ -85,31 +85,31 @@ export default ({ theme }: Props) => {
                             filter: "brightness(80%)",
                         },
                     })} />
-                    </a>
+                </a>
 
-                    <div
-                        class={css({
-                            background: "var(--background-secondary)",
-                            padding: "1rem",
-                            borderRadius: "0 0 1rem 1rem",
-                            flexGrow: 1,
-                            height: "100%",
-                        })}
-                    >
-                        <div class={css({
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            gap: "1rem",
-                            height: "100%",
-                        })}>
-                            <div
-                                class={css({
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "0.375rem",
-                                })}
-                            >
+                <div
+                    class={css({
+                        background: "var(--background-secondary)",
+                        padding: "1rem",
+                        borderRadius: "0 0 1rem 1rem",
+                        flexGrow: 1,
+                        height: "100%",
+                    })}
+                >
+                    <div class={css({
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        gap: "1rem",
+                        height: "100%",
+                    })}>
+                        <div
+                            class={css({
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "0.375rem",
+                            })}
+                        >
                             <div
                                 class={css({
                                     display: "flex",
@@ -117,7 +117,17 @@ export default ({ theme }: Props) => {
                                     gap: "0.125rem",
                                 })}
                             >
-                                <Header tag={HeaderTags.H4}>{theme.name}</Header>
+                                <Header tag={HeaderTags.H4} class={css({
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                })}>
+                                    {theme.name}
+                                    <Header tag={HeaderTags.H5} class={css({
+                                        marginLeft: "0.5ch",
+                                    })}>
+                                        — {theme.author}
+                                    </Header>
+                                </Header>
 
                                 <div
                                     class={css({
@@ -136,31 +146,39 @@ export default ({ theme }: Props) => {
                                             </Tag>
                                         )}
                                     </For>
+
+                                    <Header tag={HeaderTags.H5} class={css({
+                                        marginLeft: "0.5ch",
+                                    })}>
+                                        {theme.tags && theme.tags.length > 3 ? `+${theme.tags.length - 3}` : ""}
+                                    </Header>
                                 </div>
                             </div>
 
-                                <Text>{theme.description}</Text>
-                            </div>
+                            <Text>{theme.description}</Text>
+                        </div>
 
-                            <Button color={installed() ? ButtonColors.RED : ButtonColors.BRAND} look={ButtonLooks.FILLED} size={ButtonSizes.MAX} class={css({
-                                padding: "0.5rem 0 !important",
-                                borderRadius: "0.5rem !important",
-                                minWidth: "100% !important",
-                                minHeight: "initial !important",
-                                height: "2.125rem !important",
-                            })}
-                            onClick={() => {
+                        <Button color={installed() ? ButtonColors.RED : ButtonColors.BRAND} look={ButtonLooks.FILLED} size={ButtonSizes.MAX} class={css({
+                            padding: "0.5rem 0 !important",
+                            borderRadius: "var(--radius-sm) !important",
+                            minWidth: "100% !important",
+                            minHeight: "initial !important",
+                            height: "2.125rem !important",
+                        })}
+                            onClick={(e) => {
+                                e.stopPropagation();
+
                                 if (installed()) {
                                     store.installedTheme = "";
                                 } else {
                                     store.installedTheme = theme.css_link;
                                 }
                             }}>
-                                {installed() ? "Uninstall" : "Install"}
-                            </Button>
-                        </div>
+                            {installed() ? "Uninstall" : "Install"}
+                        </Button>
                     </div>
                 </div>
-            </>
+            </div>
+        </>
     )
 }
