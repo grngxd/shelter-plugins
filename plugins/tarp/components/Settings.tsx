@@ -1,12 +1,14 @@
 const { Header, HeaderTags, Text, Divider } = shelter.ui;
 import styles from "../css/styles";
+import BrowsePage from "./pages/BrowsePage";
 import CssEditorPage from "./pages/CssEditorPage";
-import InstalledPage from "./pages/InstalledPage";
+import PacksPage from "./pages/PacksPage";
 import SettingsPage from "./pages/SettingsPage";
 import PageSelector from "./PageSelector";
 export default () => {
 	const pages = [
-		{ Title: "Installed", Page: InstalledPage },
+		{ Title: "Browse", Page: BrowsePage },
+		{ Title: "Packs", Page: PacksPage },
 		{ Title: "Editor", Page: CssEditorPage },
 		{ Title: "Settings", Page: SettingsPage },
 	]

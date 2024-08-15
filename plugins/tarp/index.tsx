@@ -1,4 +1,5 @@
 import Settings from "./components/Settings";
+import repos from "./repos";
 const {
     util: { log },
     plugin: { store },
@@ -10,7 +11,36 @@ const {
 let cleanup: (() => void)[] = [];
 let quickStyle;
 
-export function onLoad() {
+export async function onLoad() {
+    repos.registerPacks();
+    handleQuickCSS();
+    handleThemes();
+    handleThemeEffect();
+    registerSettingsSection();
+
+    handleRepos();
+}
+
+export function onUnload() {
+    cleanupFunctions();
+    removeStyleElement("grng.quickcss");
+    removeStyleElement("grng.theme");
+}
+
+function cleanupFunctions() {
+    for (const clean of cleanup) {
+        clean();
+    }
+}
+
+function removeStyleElement(elementId: string) {
+    const styleElement = document.getElementById(elementId);
+    if (styleElement) {
+        styleElement.remove();
+    }
+}
+
+function handleQuickCSS() {
     const existingQuickCss = document.getElementById("grng.quickcss");
     if (existingQuickCss) {
         existingQuickCss.remove();
@@ -20,14 +50,6 @@ export function onLoad() {
     quickStyleElement.id = "grng.quickcss";
     document.body.insertBefore(quickStyleElement, document.body.firstChild);
 
-    const head = document.getElementsByTagName("head")[0];
-    if (head) {
-        const existingTheme = document.getElementById("grng.theme");
-		if (existingTheme) {
-			existingTheme.remove();
-		}
-    }
-
     if (store.quickCSS) {
         quickStyle = store.quickCSS;
         quickStyleElement.innerHTML = quickStyle;
@@ -35,43 +57,71 @@ export function onLoad() {
         store.quickCSS = "";
     }
 
-	if (!store.enabledTheme) {
-		store.enabledTheme = "";
-	}
+    handleQuickCSSEffect();
+}
 
-	if (!store.themeList) {
-		store.themeList = [];
-	}
+function handleRepos() {
+    if (!Array.isArray(store.packs)) {
+        store.packs = [];
+    }
+}
 
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = store.enabledTheme || "";
-    link.id = "grng.theme";
-    head.appendChild(link);
+function handleThemes() {
+    const head = document.getElementsByTagName("head")[0];
+    if (head) {
+        const existingTheme = document.getElementById("grng.theme");
+        if (existingTheme) {
+            existingTheme.remove();
+        }
+
+        if (!store.enabledTheme) {
+            store.enabledTheme = "";
+        }
+
+        if (!store.themes) {
+            store.themes = [];
+        }
+
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = store.enabledTheme || "";
+        link.id = "grng.theme";
+        head.appendChild(link);
+    }
+
+    handleThemeEffect();
+}
+
+function handleQuickCSSEffect() {
+    const quickStyleElement = document.getElementById("grng.quickcss") as HTMLStyleElement;
 
     createEffect(() => {
         quickStyleElement.innerHTML = "";
         quickStyle = store.quickCSS;
         quickStyleElement.innerHTML = quickStyle;
     }, [store.quickCSS]);
+}
 
+function handleThemeEffect() {
     createEffect(() => {
         const head = document.getElementsByTagName("head")[0];
         if (head) {
-			const existingTheme = document.getElementById("grng.theme");
-			if (existingTheme) {
-				existingTheme.remove();
-			}
+            const existingTheme = document.getElementById("grng.theme");
+            if (existingTheme) {
+                existingTheme.remove();
+            }
 
             const link = document.createElement("link");
             link.rel = "stylesheet";
-			link.href = store.enabledTheme || "";
+            link.href = store.enabledTheme || "";
             link.id = "grng.theme";
             head.appendChild(link);
         }
-    });
+    }, [store.enabledTheme]);
+}
 
-    let c = shelter.settings.registerSection(
+function registerSettingsSection() {
+    const c = shelter.settings.registerSection(
         //@ts-ignore
         "section",
         "grng.browser",
@@ -79,20 +129,4 @@ export function onLoad() {
         Settings
     ) as () => void;
     cleanup.push(c);
-}
-
-export function onUnload() {
-    for (const clean of cleanup) {
-        clean();
-    }
-
-    const styleElement = document.getElementById("grng.quickcss");
-    if (styleElement) {
-        styleElement.remove();
-    }	
-
-    const quickStyleElement = document.getElementById("grng.theme");
-    if (quickStyleElement) {
-        quickStyleElement.remove();
-    }
 }

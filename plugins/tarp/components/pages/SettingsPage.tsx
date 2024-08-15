@@ -15,15 +15,11 @@ const {
     solid: { createSignal, createEffect, onCleanup },
 } = shelter;
 
-const saveThemeListDebounced = debounce((themeList) => (store.themeList = themeList), 250);
+const saveThemeListDebounced = debounce((themeList) => (store.themes = themeList), 250);
 
 export default () => {
     createEffect(() => {
-        saveThemeListDebounced(store.themeList);
-    });
-
-    createEffect(() => {
-        console.log(store.themeList);
+        saveThemeListDebounced(store.themes);
     });
 
     return (
@@ -47,7 +43,7 @@ export default () => {
             <Divider mt={"0.5rem"} mb={"0.5rem"} />
 
             <div>
-                {store.themeList.map((theme, index) => (
+                {store.themes.map((theme, index) => (
                     <div class={css({
                         display: "flex",
                         alignItems: "center",
@@ -56,21 +52,21 @@ export default () => {
                         <TextBox
                             value={theme}
                             onInput={(v) => {
-                                const updatedThemeList = [...store.themeList];
+                                const updatedThemeList = [...store.themes];
                                 updatedThemeList[index] = v;
-                                store.themeList = updatedThemeList;
+                                store.themes = updatedThemeList;
                             }}
                         />
-                        {store.themeList.length > 0 && store.themeList.length - 1 === index && (
+                        {store.themes.length > 0 && store.themes.length - 1 === index && (
                             <Button
                             onClick={() => {
                                 if (theme.trim() === "") {
-                                    const updatedThemeList = [...store.themeList];
+                                    const updatedThemeList = [...store.themes];
                                     updatedThemeList.splice(index, 1);
-                                    store.themeList = updatedThemeList;
+                                    store.themes = updatedThemeList;
                                 } else {
-                                    const updatedThemeList = [...store.themeList, ""];
-                                    store.themeList = updatedThemeList;
+                                    const updatedThemeList = [...store.themes, ""];
+                                    store.themes = updatedThemeList;
                                 }
                             }}
                         >
@@ -79,11 +75,11 @@ export default () => {
                         )}
                     </div>
                 ))}
-                {store.themeList.length === 0 && (
+                {store.themes.length === 0 && (
                     <Button
                         onClick={() => {
-                            const updatedThemeList = [...store.themeList, ""];
-                            store.themeList = updatedThemeList;
+                            const updatedThemeList = [...store.themes, ""];
+                            store.themes = updatedThemeList;
                         }}
                     >
                         Add
