@@ -1,3 +1,4 @@
+import { css } from "@emotion/css";
 import { JSX } from "solid-js";
 import styles from "../css/styles";
 
@@ -23,9 +24,13 @@ export default (props: Props) => {
                 props.Pages.map((page, i) => (
                     <Button
                     onClick={() => setPage(i)}
-                    look={i === currentPage() ? ButtonLooks.FILLED : ButtonLooks.OUTLINED}
-                    color={i === currentPage() ? ButtonColors.BRAND : ButtonColors.SECONDARY}
-                    size={ButtonSizes.MEDIUM}
+                    look={ButtonLooks.FILLED}
+                    color={i === currentPage() ? ButtonColors.SECONDARY : ButtonColors.TRANSPARENT}
+                    class={css({
+                        opacity: i === currentPage() ? 1 : 0.75,
+                        padding: "1rem 2.5rem !important",
+                    })}
+                    size={ButtonSizes.SMALL}
                     >
                         {page.Title}
                     </Button>

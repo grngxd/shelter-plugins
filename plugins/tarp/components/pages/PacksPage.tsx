@@ -42,7 +42,7 @@ const PacksPage = () => {
     }, []);
 
     const handleAddRepo = () => {
-        setJsons((prevJsons) => [...prevJsons, { meta: {} } as Pack]);
+        
     };
 
     return (

@@ -66,91 +66,101 @@ export default ({ theme }: Props) => {
         )
     }
     return (
-            <div class={css({
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: "1rem",
-                overflow: "clip",
-            })}>
-                <a onClick={() => openModal(Modal)}>
-                <img src={theme.preview} alt={theme.name} class={css({
+            <>
+                <div class={css({
+                    display: "flex",
+                    flexDirection: "column",
+                    borderRadius: "1rem",
+                    overflow: "clip",
                     width: "100%",
-                    height: "12rem",
-                    objectFit: "cover",
-                    transition: "filter 0.175s ease-out",
-                    "&:hover": {
-                        filter: "brightness(80%)",
-                    },
-                })} />
-                </a>
+                    height: "100%",
+                })}>
+                    <a onClick={() => openModal(Modal)}>
+                    <img src={theme.preview} alt={theme.name} class={css({
+                        width: "100%",
+                        height: "12rem",
+                        objectFit: "cover",
+                        transition: "filter 0.175s ease-out",
+                        "&:hover": {
+                            filter: "brightness(80%)",
+                        },
+                    })} />
+                    </a>
 
-                <div
-                    class={css({
-                        background: "var(--background-secondary)",
-                        padding: "1rem",
-                        borderRadius: "0 0 1rem 1rem",
-                    })}
-                >
-                    <div class={css({
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "1rem",
-                    })}>
-                         <div
-                            class={css({
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "0.375rem",
-                            })}
-                        >
-                        <div
-                            class={css({
-                                display: "flex",
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                            })}
-                        >
-                            <Header tag={HeaderTags.H4}>{theme.name}</Header>
-
+                    <div
+                        class={css({
+                            background: "var(--background-secondary)",
+                            padding: "1rem",
+                            borderRadius: "0 0 1rem 1rem",
+                            flexGrow: 1,
+                            height: "100%",
+                        })}
+                    >
+                        <div class={css({
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            gap: "1rem",
+                            height: "100%",
+                        })}>
                             <div
                                 class={css({
                                     display: "flex",
+                                    flexDirection: "column",
+                                    gap: "0.375rem",
+                                })}
+                            >
+                            <div
+                                class={css({
+                                    display: "flex",
+                                    flexDirection: "column",
                                     gap: "0.125rem",
                                 })}
                             >
-                                <For each={(theme.tags && Array.isArray(theme.tags)) ? theme.tags.slice(0, 3).sort(() => Math.random() - 0.5) : []}>
-                                    {(tag) => (
-                                        <Tag background={randomColor({
-                                            luminosity: "dark",
-                                            // reverse the tag
-                                            seed: tag.split("").reverse().join("") + tag.length + "shelteriscool"
-                                        })}>
-                                            {tag.toLowerCase()}
-                                        </Tag>
-                                    )}
-                                </For>
-                            </div>
+                                <Header tag={HeaderTags.H4}>{theme.name}</Header>
+
+                                <div
+                                    class={css({
+                                        display: "flex",
+                                        gap: "0.125rem",
+                                    })}
+                                >
+                                    <For each={(theme.tags && Array.isArray(theme.tags)) ? theme.tags.slice(0, 3).sort(() => Math.random() - 0.5) : []}>
+                                        {(tag) => (
+                                            <Tag background={randomColor({
+                                                luminosity: "dark",
+                                                // reverse the tag
+                                                seed: tag.split("").reverse().join("") + tag.length + "shelteriscool"
+                                            })}>
+                                                {tag.toLowerCase()}
+                                            </Tag>
+                                        )}
+                                    </For>
+                                </div>
                             </div>
 
-                            <Text>{theme.description}</Text>
+                                <Text>{theme.description}</Text>
+                            </div>
+
+                            <Button color={installed() ? ButtonColors.RED : ButtonColors.BRAND} look={ButtonLooks.FILLED} size={ButtonSizes.MAX} class={css({
+                                padding: "0.5rem 0 !important",
+                                borderRadius: "0.5rem !important",
+                                minWidth: "100% !important",
+                                minHeight: "initial !important",
+                                height: "2.125rem !important",
+                            })}
+                            onClick={() => {
+                                if (installed()) {
+                                    store.installedTheme = "";
+                                } else {
+                                    store.installedTheme = theme.css_link;
+                                }
+                            }}>
+                                {installed() ? "Uninstall" : "Install"}
+                            </Button>
                         </div>
-
-                        <Button color={installed() ? ButtonColors.RED : ButtonColors.BRAND} look={ButtonLooks.FILLED} size={ButtonSizes.MAX} class={css({
-                            padding: "0.5rem 0 !important",
-                            borderRadius: "0.5rem !important",
-                        })}
-                        onClick={() => {
-                            if (installed()) {
-                                store.installedTheme = "";
-                                setInstalled(false);
-                            } else {
-                                setInstalled(true);
-                            }
-                        }}>
-                            {installed() ? "Uninstall" : "Install"}
-                        </Button>
                     </div>
                 </div>
-            </div>
+            </>
     )
 }

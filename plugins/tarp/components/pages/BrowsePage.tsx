@@ -14,12 +14,9 @@ const {
 
 const containerStyle = css({
     display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: "1rem",
+    gridTemplateColumns: "1fr 1fr",
     padding: "1rem 0 0 0",
-    height: "100%",
-    width: "100%",
-    overflowY: "auto",
+    gridGap: "1rem",
 });
 
 const BrowsePage = () => {
