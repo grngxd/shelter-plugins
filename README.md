@@ -18,7 +18,7 @@ adds theming support to shelter.
 
 `https://grngxd.github.io/shelter-plugins/tarp/`
 
-<img alt="preview" src="https://us-east-1.tixte.net/uploads/monitrr.likes.cash/Discord_zkbH1yCvEO.gif" width="300px">
+<img alt="preview" src="https://us-east-1.tixte.net/uploads/monitrr.likes.cash/Discord_zkbH1yCvEO.gif" width="400px">
 
 ### timestamper
 
@@ -26,7 +26,7 @@ replaces time-directions with timestamps in your messages.
 
 `https://grngxd.github.io/shelter-plugins/timestamper/`
 
-<img alt="preview" src="https://us-east-1.tixte.net/uploads/monitrr.likes.cash/Discord_hYOITNHpfM.gif" width="300px">
+<img alt="preview" src="https://us-east-1.tixte.net/uploads/monitrr.likes.cash/Discord_hYOITNHpfM.gif" width="500px">
 
 
 
