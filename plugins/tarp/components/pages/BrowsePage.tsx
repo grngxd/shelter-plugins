@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { Pack, Theme } from "../../repos";
+import repos, { Pack, Theme } from "../../repos";
 import CardEntry from "./browse/CardEntry";
 
 const {
@@ -24,6 +24,10 @@ const BrowsePage = () => {
     const [officialThemes, setOfficialThemes] = createSignal([]);
     const [themes, setThemes] = createSignal([]);
     const [filteredThemes, setFilteredThemes] = createSignal([]);
+
+    createEffect(async () => {
+        await repos.registerPacks();
+    }, [])
 
     createEffect(() => {
         log("store official packs")

@@ -107,7 +107,7 @@ export default ({ theme }: Props) => {
                             class={css({
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: "0.375rem",
+                                gap: "0.5rem",
                             })}
                         >
                             <div
@@ -132,7 +132,7 @@ export default ({ theme }: Props) => {
                                 <div
                                     class={css({
                                         display: "flex",
-                                        gap: "0.125rem",
+                                        gap: "0.25rem",
                                     })}
                                 >
                                     <For each={(theme.tags && Array.isArray(theme.tags)) ? theme.tags.slice(0, 3).sort(() => Math.random() - 0.5) : []}>
@@ -148,7 +148,8 @@ export default ({ theme }: Props) => {
                                     </For>
 
                                     <Header tag={HeaderTags.H5} class={css({
-                                        marginLeft: "0.5ch",
+                                        //marginLeft: "0.5ch",
+                                        marginLeft: "0.25rem"
                                     })}>
                                         {theme.tags && theme.tags.length > 3 ? `+${theme.tags.length - 3}` : ""}
                                     </Header>

@@ -14,7 +14,7 @@ let quickStyle;
 export async function onLoad() {
     await repos.registerPacks();
     handleQuickCSS();
-    handleThemes();
+    await handleThemes();
     registerSettingsSection();
 
     handleRepos();
@@ -74,28 +74,36 @@ function handleRepos() {
     }
 }
 
-function handleThemes() {
-    createEffect(() => {
-        const head = document.getElementsByTagName("head")[0];
-        if (head) {
-            const existingTheme = document.getElementById("grng.theme");
-            if (existingTheme) {
-                existingTheme.remove();
-            }
+async function handleThemes() {
+    createEffect(async () => {
+        if (store.installedTheme.endsWith(".css") || store.installedTheme === "") {
+            const head = document.getElementsByTagName("head")[0];
+            if (head) {
+                const existingTheme = document.getElementById("grng.theme");
+                if (existingTheme) {
+                    existingTheme.remove();
+                }
 
-            if (!store.installedTheme) {
-                store.installedTheme = "";
-            }
+                if (!store.installedTheme) {
+                    store.installedTheme = "";
+                }
 
-            if (!store.themes) {
-                store.themes = [];
-            }
+                if (!store.themes) {
+                    store.themes = [];
+                }
 
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = store.installedTheme || "";
-            link.id = "grng.theme";
-            head.appendChild(link);
+                // const link = document.createElement("link");
+                // link.rel = "stylesheet";
+                // link.href = store.installedTheme || "";
+                // link.id = "grng.theme";
+                // head.appendChild(link);
+                
+                const style = document.createElement("style");
+                style.id = "grng.theme";
+                const theme = await fetch(store.installedTheme).then((res) => res.text());
+                style.innerHTML = theme;
+                head.appendChild(style);
+            }
         }
     }, [store.installedTheme]);
 }
