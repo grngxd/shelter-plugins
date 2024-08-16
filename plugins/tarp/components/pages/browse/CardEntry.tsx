@@ -76,7 +76,7 @@ export default ({ theme }: Props) => {
                 height: "100%",
             })}>
                 <a onClick={() => openModal(Modal)}>
-                    <img src={theme.preview} alt={theme.name} class={css({
+                    <img src={theme.preview || "https://placehold.co/600x400?text=No%20Image"} alt={theme.name} class={css({
                         width: "100%",
                         height: "12rem",
                         objectFit: "cover",
@@ -100,21 +100,21 @@ export default ({ theme }: Props) => {
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "space-between",
-                        gap: "1rem",
+                        gap: "0.825rem",
                         height: "100%",
                     })}>
                         <div
                             class={css({
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: "0.5rem",
+                                gap: "0.375rem",
                             })}
                         >
                             <div
                                 class={css({
                                     display: "flex",
                                     flexDirection: "column",
-                                    gap: "0.125rem",
+                                    gap: "0.25rem",
                                 })}
                             >
                                 <Header tag={HeaderTags.H4} class={css({

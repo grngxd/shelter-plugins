@@ -5,7 +5,10 @@ const {
     plugin: { store },
     solid: { createEffect },
     ui: { showToast },
-    flux: { dispatcher },
+    flux: {
+        dispatcher,
+        stores
+    },
 } = shelter;
 
 let cleanup: (() => void)[] = [];
@@ -97,7 +100,7 @@ async function handleThemes() {
                 // link.href = store.installedTheme || "";
                 // link.id = "grng.theme";
                 // head.appendChild(link);
-                
+
                 const style = document.createElement("style");
                 style.id = "grng.theme";
                 const theme = await fetch(store.installedTheme).then((res) => res.text());

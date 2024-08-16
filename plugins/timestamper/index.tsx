@@ -4,7 +4,7 @@ const {
         dispatcher,
         intercept,
         storesFlat: {
-            UserStore
+            UserStore,
         }
     }
 } = shelter;
