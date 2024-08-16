@@ -23,6 +23,7 @@ const {
             ModalBody,
             Header,
             HeaderTags,
+            TextBox
     },
     plugin: { store },
     util: { log },
@@ -39,6 +40,8 @@ export default ({ theme }: Props) => {
     const [style, setStyle] = createSignal("")
     const [styleVariables, setStyleVariables] = createSignal<StyleVariable[]>([])
     
+
+    // TODO: somebody please refactor this mess please its horrifying please (i'm sorry)
     createEffect(async () => {
         await fetch(theme.css_link)
             .then((res) => res.text())
@@ -60,9 +63,6 @@ export default ({ theme }: Props) => {
             let name = "";
             let value = "";
 
-             // some comments can be like
-            // // primary color
-            // --color-primary: #000;
             if (lastLine.includes("//") && line.includes("--")) {
                 const commentIndex = lastLine.indexOf("//");
                 if (commentIndex !== -1) {
@@ -72,8 +72,10 @@ export default ({ theme }: Props) => {
                 const colonIndex = line.indexOf(":");
                 if (colonIndex === -1) continue;
 
-                name = line.slice(0, colonIndex).trim();
+                name = line.slice(0, colonIndex).trim().slice(2);
                 value = line.slice(colonIndex + 1).trim().split(";")[0];
+
+                if (vars.find((v) => v.name === name)) continue;
 
                 vars.push({
                     comment,
@@ -81,10 +83,6 @@ export default ({ theme }: Props) => {
                     value,
                 });
             }
-
-            // some comments can be like
-            // /* primary color */
-            // --color-primary: #000;
 
             if (lastLine.includes("/*") && line.includes("--")) {
                 const commentIndex = lastLine.indexOf("/*");
@@ -95,8 +93,10 @@ export default ({ theme }: Props) => {
                 const colonIndex = line.indexOf(":");
                 if (colonIndex === -1) continue;
 
-                name = line.slice(0, colonIndex).trim();
+                name = line.slice(0, colonIndex).trim().slice(2);
                 value = line.slice(colonIndex + 1).trim().split(";")[0];
+                
+                if (vars.find((v) => v.name === name)) continue;
 
                 vars.push({
                     comment,
@@ -105,10 +105,6 @@ export default ({ theme }: Props) => {
                 });
             }
 
-            // some comments can be like
-            // /* primary 
-            // color */
-            // --color-primary: #000;
             if (line.includes("/*") && line.includes("--")) {
                 const commentIndex = line.indexOf("/*");
                 if (commentIndex !== -1) {
@@ -118,8 +114,9 @@ export default ({ theme }: Props) => {
                 const colonIndex = line.indexOf(":");
                 if (colonIndex === -1) continue;
 
-                name = line.slice(0, colonIndex).trim();
+                name = line.slice(0, colonIndex).trim().slice(2);
                 value = line.slice(colonIndex + 1).trim().split(";")[0];
+                if (vars.find((v) => v.name === name)) continue;
 
                 vars.push({
                     comment,
@@ -128,8 +125,6 @@ export default ({ theme }: Props) => {
                 });
             }
 
-            // some comments can be like
-            // --color-primary: #000; // primary color
             if (line.includes("//") && line.includes("--")) {
                 const commentIndex = line.indexOf("//");
                 if (commentIndex !== -1) {
@@ -139,8 +134,9 @@ export default ({ theme }: Props) => {
                 const colonIndex = line.indexOf(":");
                 if (colonIndex === -1) continue;
 
-                name = line.slice(0, colonIndex).trim();
+                name = line.slice(0, colonIndex).trim().slice(2);
                 value = line.slice(colonIndex + 1).trim().split(";")[0];
+                if (vars.find((v) => v.name === name)) continue;
 
                 vars.push({
                     comment,
@@ -149,8 +145,6 @@ export default ({ theme }: Props) => {
                 });
             }
 
-            // some comments can be like
-            // --color-primary: #000 /* primary color */
             if (line.includes("/*") && line.includes("--")) {
                 const commentIndex = line.indexOf("/*");
                 if (commentIndex !== -1) {
@@ -160,8 +154,9 @@ export default ({ theme }: Props) => {
                 const colonIndex = line.indexOf(":");
                 if (colonIndex === -1) continue;
 
-                name = line.slice(0, colonIndex).trim();
+                name = line.slice(0, colonIndex).trim().slice(2);
                 value = line.slice(colonIndex + 1, line.indexOf("/*")).trim().split(";")[0];
+                if (vars.find((v) => v.name === name)) continue;
 
                 vars.push({
                     comment,
@@ -174,8 +169,9 @@ export default ({ theme }: Props) => {
                 const colonIndex = line.indexOf(":");
                 if (colonIndex === -1) continue;
 
-                name = line.slice(0, colonIndex).trim();
+                name = line.slice(0, colonIndex).trim().slice(2);
                 value = line.slice(colonIndex + 1).trim().split(";")[0];
+                if (vars.find((v) => v.name === name)) continue;
 
                 vars.push({
                     comment,
@@ -263,9 +259,22 @@ export default ({ theme }: Props) => {
                                         </Header>
                                     )}
 
-                                    <Text>
-                                        {variable.value}
-                                    </Text>
+                                    <TextBox
+                                        value={variable.value}
+                                        onInput={(v) => {
+                                            const lines = style().split("\n");
+                                            const newLines = [];
+
+                                            for (let i = 0; i < lines.length; i++) {
+                                                const line = lines[i];
+                                                if (line.includes(variable.name) && !line.includes(":root")) {
+                                                    newLines.push(line.replace(variable.name, v));
+                                                } else {
+                                                    newLines.push(line);
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
                             )}
                         </For>
@@ -348,7 +357,6 @@ export default ({ theme }: Props) => {
                                         {(tag) => (
                                             <Tag background={randomColor({
                                                 luminosity: "dark",
-                                                // reverse the tag
                                                 seed: tag.split("").reverse().join("") + tag.length + "shelteriscool"
                                             })}>
                                                 {tag.toLowerCase()}
