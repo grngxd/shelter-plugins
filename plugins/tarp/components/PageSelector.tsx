@@ -28,7 +28,8 @@ export default (props: Props) => {
                     color={i === currentPage() ? ButtonColors.SECONDARY : ButtonColors.TRANSPARENT}
                     class={css({
                         opacity: i === currentPage() ? 1 : 0.75,
-                        padding: "1rem 2.5rem !important",
+                        //padding: "1rem 2.5rem !important",
+                        padding: "0 3rem !important",
                     })}
                     size={ButtonSizes.SMALL}
                     >
