@@ -30,6 +30,7 @@ export async function onLoad() {
 
 export function onUnload() {
     cleanupFunctions();
+    
     removeStyleElement("grng.quickcss");
     removeStyleElement("grng.theme");
 }
@@ -79,16 +80,16 @@ function handleRepos() {
 
 async function handleThemes() {
     createEffect(async () => {
-        if (store.installedTheme.endsWith(".css") || store.installedTheme === "") {
+        if (!store.__tarp_installedTheme) {
+            store.__tarp_installedTheme = "";
+        }
+
+        if (store.__tarp_installedTheme.endsWith(".css") || store.__tarp_installedTheme === "") {
             const head = document.getElementsByTagName("head")[0];
             if (head) {
                 const existingTheme = document.getElementById("grng.theme");
                 if (existingTheme) {
                     existingTheme.remove();
-                }
-
-                if (!store.installedTheme) {
-                    store.installedTheme = "";
                 }
 
                 if (!store.themes) {
@@ -97,18 +98,18 @@ async function handleThemes() {
 
                 // const link = document.createElement("link");
                 // link.rel = "stylesheet";
-                // link.href = store.installedTheme || "";
+                // link.href = store.__tarp_installedTheme || "";
                 // link.id = "grng.theme";
                 // head.appendChild(link);
 
                 const style = document.createElement("style");
                 style.id = "grng.theme";
-                const theme = await fetch(store.installedTheme).then((res) => res.text());
+                const theme = await fetch(store.__tarp_installedTheme).then((res) => res.text());
                 style.innerHTML = theme;
                 head.appendChild(style);
             }
         }
-    }, [store.installedTheme]);
+    }, [store.__tarp_installedTheme]);
 }
 
 function handleQuickCSSEffect() {
@@ -123,9 +124,8 @@ function handleQuickCSSEffect() {
 
 function registerSettingsSection() {
     const c = shelter.settings.registerSection(
-        //@ts-ignore
         "section",
-        "grng.browser",
+        "tarp.settings",
         "Theme Browser",
         Settings
     ) as () => void;

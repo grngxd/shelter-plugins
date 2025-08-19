@@ -4,7 +4,7 @@
 		"noEmit": true,
 		"target": "ESNext",
 		"lib": ["ESNext", "DOM"],
-		"jsx": "react",
+		"jsx": "react-jsx",
 		"jsxImportSource": "solid-js",
 		"moduleResolution": "node"
 	}

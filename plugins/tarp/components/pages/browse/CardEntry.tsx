@@ -9,7 +9,8 @@ const {
     solid: {
         For,
         createSignal,
-        createEffect
+        createEffect,
+        onMount
     },
     ui: {
             Text,
@@ -33,9 +34,35 @@ interface Props {
     theme: Theme
 }
 
-const saveInstalledThemeDebounced = debounce((themeLink) => (store.installedTheme = themeLink), 250);
+const save__tarp_installedThemeDebounced = debounce((themeLink) => (store.__tarp_installedTheme = themeLink), 250);
 
 export default ({ theme }: Props) => {
+    const [visibleTags, setVisibleTags] = createSignal([]);
+    const [hiddenTagsCount, setHiddenTagsCount] = createSignal(0);
+
+    onMount(() => {
+        const card: HTMLElement = document.querySelector('.card');
+        const tags: HTMLElement[] = Array.from(card.querySelectorAll('#tag'));
+        const cardWidth = card.offsetWidth;
+        const maxAllowedWidth = cardWidth * 0.6;
+        let totalWidth = 0;
+        let visible = [];
+
+        tags.forEach(tag => {
+            const tagWidth = tag.offsetWidth;
+            if (totalWidth + tagWidth <= maxAllowedWidth || visible.length === 0) {
+                visible.push(tag);
+                totalWidth += tagWidth;
+            } else {
+                tag.style.display = 'none';
+            }
+        });
+
+        setVisibleTags(visible);
+        setHiddenTagsCount(tags.length - visible.length);
+    });
+
+
     const [installed, setInstalled] = createSignal(false)
     const [style, setStyle] = createSignal("")
     const [styleVariables, setStyleVariables] = createSignal<StyleVariable[]>([])
@@ -200,14 +227,14 @@ export default ({ theme }: Props) => {
 
     createEffect(() => {
         if (!installed()) return;
-        saveInstalledThemeDebounced(theme.css_link);
+        save__tarp_installedThemeDebounced(theme.css_link);
     }, [installed()]);
 
     createEffect(() => {
-        setInstalled(store.installedTheme === theme.css_link);
+        setInstalled(store.__tarp_installedTheme === theme.css_link);
 
-        log("installed theme " + store.installedTheme);
-    }, [store.installedTheme]);
+        log("installed theme " + store.__tarp_installedTheme);
+    }, [store.__tarp_installedTheme]);
 
     const PreviewModal = ({ close }: ModalProps) => {
         return (
@@ -365,10 +392,9 @@ export default ({ theme }: Props) => {
                                     </For>
 
                                     <Header tag={HeaderTags.H5} class={css({
-                                        //marginLeft: "0.5ch",
                                         marginLeft: "0.25rem"
                                     })}>
-                                        {theme.tags && theme.tags.length > 3 ? `+${theme.tags.length - 3}` : ""}
+                                        {hiddenTagsCount() > 0 ? `+${hiddenTagsCount()}` : ""}
                                     </Header>
                                 </div>
                             </div>
@@ -398,9 +424,9 @@ export default ({ theme }: Props) => {
                                     e.stopPropagation();
 
                                     if (installed()) {
-                                        store.installedTheme = "";
+                                        store.__tarp_installedTheme = "";
                                     } else {
-                                        store.installedTheme = theme.css_link;
+                                        store.__tarp_installedTheme = theme.css_link;
                                     }
                                 }}
                             >
