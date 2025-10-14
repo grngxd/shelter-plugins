@@ -16,9 +16,12 @@ jobs:
               with:
                   node-version: "18"
 
+            - uses: oven-sh/setup-bun@v2
+              with:
+                bun-version: latest
+
             - name: Deps
               run: |
-                  npm install -g bun
                   bun i
 
             - name: Build plugin(s)
