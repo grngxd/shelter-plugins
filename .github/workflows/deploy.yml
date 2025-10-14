@@ -18,9 +18,7 @@ jobs:
 
             - name: Deps
               run: |
-                  curl -fsSL https://bun.sh/install | bash
-                  echo "$HOME/.bun/bin" >> $GITHUB_PATH
-                  export PATH="$HOME/.bun/bin:$PATH"
+                  npm install -g bun
                   bun i
 
             - name: Build plugin(s)
