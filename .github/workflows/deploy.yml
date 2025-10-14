@@ -18,11 +18,11 @@ jobs:
 
             - name: Deps
               run: |
-                  npm install --global pnpm
-                  pnpm i
+                  curl -fsSL https://bun.sh/install | bash
+                  bun i
 
             - name: Build plugin(s)
-              run: pnpm lune ci
+              run: bun lune ci
 
             - name: Copy additional files
               run: |
