@@ -1,23 +1,12 @@
-const {
-    util: { log },
-    flux: {
-        dispatcher,
-        intercept,
-        storesFlat: {
-            UserStore,
-        }
-    }
-} = shelter;
-let unsub;
-export function onLoad() {
-    // you can safely run onLoad actions at the top level!
-    log("Hello, World from shelter!")
-    unsub = intercept((dispatch) => {
-        if (dispatch.type !== "MESSAGE_CREATE") return;
-        if (dispatch.message.author.id !== UserStore.getCurrentUser().id) return;
-        let message: string = dispatch.message.content as string;
+// const {
+//     util: { log },
+// } = shelter;
 
-        // extract code blocks
+let unsub: () => void;
+export function onLoad() {
+    unsub = shelter.http.intercept("post", /\/channels\/\d+\/messages/, (req, send) => {
+        let message: string = req.body.content as string;
+
         const codeBlocks = [];
         message = message.replace(/(```[\s\S]*?```|`[^`]*`)/g, (match) => {
             codeBlocks.push(match);
@@ -121,14 +110,14 @@ export function onLoad() {
         // "tomorrow"
         message = checkBackslash(/tomorrow/g, `<t:${Math.floor(Date.now() / 1000) + 86400}:R>`);
 
-        // Reinsert code blocks
         message = message.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => codeBlocks[parseInt(index)]);
 
-        dispatch.message.content = message;
+        req.body.content = message;
+        return send(req);
     });
 }
 
+
 export function onUnload() {
-    log("Goodbye, World from shelter!")
     unsub();
 }
