@@ -3,14 +3,10 @@
 "use strict";
 
 //#region plugins/timestamper/index.tsx
-const { util: { log }, flux: { dispatcher, intercept, storesFlat: { UserStore } } } = shelter;
 let unsub;
 function onLoad() {
-	log("Hello, World from shelter!");
-	unsub = intercept((dispatch) => {
-		if (dispatch.type !== "MESSAGE_CREATE") return;
-		if (dispatch.message.author.id !== UserStore.getCurrentUser().id) return;
-		let message = dispatch.message.content;
+	unsub = shelter.http.intercept("post", /\/channels\/\d+\/messages/, (req, send) => {
+		let message = req.body.content;
 		const codeBlocks = [];
 		message = message.replace(/(```[\s\S]*?```|`[^`]*`)/g, (match) => {
 			codeBlocks.push(match);
@@ -84,11 +80,11 @@ function onLoad() {
 		});
 		message = checkBackslash(/tomorrow/g, `<t:${Math.floor(Date.now() / 1e3) + 86400}:R>`);
 		message = message.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => codeBlocks[parseInt(index)]);
-		dispatch.message.content = message;
+		req.body.content = message;
+		return send(req);
 	});
 }
 function onUnload() {
-	log("Goodbye, World from shelter!");
 	unsub();
 }
 
