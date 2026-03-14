@@ -4,7 +4,8 @@
 
 //#region plugins/timestamper/index.tsx
 let unsub;
-function onLoad() {
+async function onLoad() {
+	await shelter.http.ready;
 	unsub = shelter.http.intercept("post", /\/channels\/\d+\/messages/, (req, send) => {
 		let message = req.body.content;
 		const codeBlocks = [];
