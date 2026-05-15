@@ -10,20 +10,34 @@ export async function onLoad() {
         if (!req.body || typeof req.body.content !== "string") return send(req);
         let message: string = req.body.content as string;
 
-        const code = [];
+        const code: string[] = [];
         message = message.replace(/(```[\s\S]*?```|`[^`]*`)/g, (match) => {
             code.push(match);
             return `__CODE_BLOCK_${code.length - 1}__`;
         });
 
-        // escape backslashes
-        const checkBackslash = (pattern, replacement) => {
+        type Units = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
+
+        const UNIT_SECONDS: Record<Units, number> = {
+            second: 1,
+            minute: 60,
+            hour: 3600,
+            day: 86400,
+            week: 604800,
+            month: 2628000,
+            year: 31536000,
+        };
+
+        const checkBackslash = (
+            pattern: RegExp,
+            replacement: string | ((...args: any[]) => string)
+        ): string => {
             if (typeof message !== "string") return message;
             const escapedRegex = new RegExp('\\\\(?=' + pattern.source + ')', pattern.flags);
             if (escapedRegex.test(message)) {
                 return message.replace(escapedRegex, '');
             }
-            return message.replace(pattern, replacement);
+            return message.replace(pattern, replacement as any);
         };
 
         // ordered from most destructive to least destructive
@@ -31,66 +45,50 @@ export async function onLoad() {
         // because it's more specific and could accidentally be caught by XX:XX)
 
         // day, xx month xxxx xx:xx
-        message = checkBackslash(/([a-zA-Z]+), (\d{1,2}) ([a-zA-Z]+) (\d{4}) (\d{1,2}):(\d{1,2})/g, (match, _, day, month, year, hour, minute) => {
+        message = checkBackslash(/([a-zA-Z]+), (\d{1,2}) ([a-zA-Z]+) (\d{4}) (\d{1,2}):(\d{1,2})/g, (match: string, _p: string, day: string, month: string, year: string, hour: string, minute: string): string => {
             const unix = Math.floor(new Date(`${month} ${day}, ${year} ${hour}:${minute}`).getTime() / 1000).toString();
             return `<t:${unix}:F>`;
         });
 
         // Parse xx month xxxx xx:xx
-        message = checkBackslash(/(\d{1,2}) ([a-zA-Z]+) (\d{4}) (\d{1,2}):(\d{1,2})/g, (match, day, month, year, hour, minute) => {
+        message = checkBackslash(/(\d{1,2}) ([a-zA-Z]+) (\d{4}) (\d{1,2}):(\d{1,2})/g, (match: string, day: string, month: string, year: string, hour: string, minute: string): string => {
             const unix = Math.floor(new Date(`${month} ${day}, ${year} ${hour}:${minute}`).getTime() / 1000).toString();
             return `<t:${unix}:f>`;
         });
     
         // xx/xx/xxxx
-        message = checkBackslash(/(\d{1,2})\/(\d{1,2})\/(\d{4})/g, (match, day, month, year) => {
+        message = checkBackslash(/(\d{1,2})\/(\d{1,2})\/(\d{4})/g, (match: string, day: string, month: string, year: string): string => {
             const unix = Math.floor(new Date(`${month}/${day}/${year}`).getTime() / 1000).toString();
             return `<t:${unix}:d>`;
         });
 
         // xx month xxxx
-        message = checkBackslash(/(\d{1,2}) ([a-zA-Z]+) (\d{4})/g, (match, day, month, year) => {
+        message = checkBackslash(/(\d{1,2}) ([a-zA-Z]+) (\d{4})/g, (match: string, day: string, month: string, year: string): string => {
             const unix = Math.floor(new Date(`${month} ${day}, ${year}`).getTime() / 1000).toString();
             return `<t:${unix}:D>`;
         });
 
         // xx:xx:xx
-        message = checkBackslash(/(\d{1,2}):(\d{1,2}):(\d{1,2})/g, (match, hour, minute, second) => {
+        message = checkBackslash(/(\d{1,2}):(\d{1,2}):(\d{1,2})/g, (match: string, hour: string, minute: string, second: string): string => {
             const unix = Math.floor(new Date().setHours(parseInt(hour), parseInt(minute), parseInt(second), 0) / 1000).toString();
             return `<t:${unix}:T>`;
         });
 
         // xx:xx
-        message = checkBackslash(/(\d{1,2}):(\d{1,2})/g, (match, hour, minute) => {
+        message = checkBackslash(/(\d{1,2}):(\d{1,2})/g, (match: string, hour: string, minute: string): string => {
             const unix = Math.floor(new Date().setHours(parseInt(hour), parseInt(minute), 0, 0) / 1000).toString();
             return `<t:${unix}:t>`;
         });
 
         // xx time ago
-        message = checkBackslash(/(\d+) (second|minute|hour|day|week|month|year)s? ago/g, (match, time, unit) => {
-            const unix = Math.floor(Date.now() / 1000) - (time * {
-                second: 1,
-                minute: 60,
-                hour: 3600,
-                day: 86400,
-                week: 604800,
-                month: 2628000,
-                year: 31536000
-            }[unit]);
+        message = checkBackslash(/(\d+) (second|minute|hour|day|week|month|year)s? ago/g, (match: string, time: string, unit: Units): string => {
+            const unix = Math.floor(Date.now() / 1000) - (parseInt(time) * UNIT_SECONDS[unit]);
             return `<t:${unix}:R>`;
         });
 
         // a[n] time ago
-        message = checkBackslash(/an? (second|minute|hour|day|week|month|year) ago/g, (match, unit) => {
-            const unix = Math.floor(Date.now() / 1000) - {
-                second: 1,
-                minute: 60,
-                hour: 3600,
-                day: 86400,
-                week: 604800,
-                month: 2628000,
-                year: 31536000
-            }[unit];
+        message = checkBackslash(/an? (second|minute|hour|day|week|month|year) ago/g, (match: string, unit: Units): string => {
+            const unix = Math.floor(Date.now() / 1000) - UNIT_SECONDS[unit];
             return `<t:${unix}:R>`;
         });
 
@@ -98,23 +96,15 @@ export async function onLoad() {
         message = checkBackslash(/yesterday/g, `<t:${Math.floor(Date.now() / 1000) - 86400}:R>`);
 
         // in xx time
-        message = checkBackslash(/in (\d+) (second|minute|hour|day|week|month|year)s?/g, (match, time, unit) => {
-            const unix = Math.floor(Date.now() / 1000) + (time * {
-                second: 1,
-                minute: 60,
-                hour: 3600,
-                day: 86400,
-                week: 604800,
-                month: 2628000,
-                year: 31536000
-            }[unit]);
+        message = checkBackslash(/in (\d+) (second|minute|hour|day|week|month|year)s?/g, (match: string, time: string, unit: Units): string => {
+            const unix = Math.floor(Date.now() / 1000) + (parseInt(time) * UNIT_SECONDS[unit]);
             return `<t:${unix}:R>`;
         });
 
         // "tomorrow"
         message = checkBackslash(/tomorrow/g, `<t:${Math.floor(Date.now() / 1000) + 86400}:R>`);
 
-        message = message.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => code[parseInt(index)]);
+        message = message.replace(/__CODE_BLOCK_(\d+)__/g, (match: string, index: string): string => code[parseInt(index)]);
 
         req.body.content = message;
         return send(req);
