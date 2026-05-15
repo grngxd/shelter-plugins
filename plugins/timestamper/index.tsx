@@ -7,19 +7,21 @@ export async function onLoad() {
     await shelter.http.ready;
 
     unsub = shelter.http.intercept("post", /\/channels\/\d+\/messages/, (req, send) => {
+        if (!req.body || typeof req.body.content !== "string") return send(req);
         let message: string = req.body.content as string;
 
-        const codeBlocks = [];
+        const code = [];
         message = message.replace(/(```[\s\S]*?```|`[^`]*`)/g, (match) => {
-            codeBlocks.push(match);
-            return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+            code.push(match);
+            return `__CODE_BLOCK_${code.length - 1}__`;
         });
 
         // escape backslashes
         const checkBackslash = (pattern, replacement) => {
-            const regex = new RegExp(`\\\\${pattern.source}`, pattern.flags);
-            if (regex.test(message)) {
-                return message.slice(1);
+            if (typeof message !== "string") return message;
+            const escapedRegex = new RegExp('\\\\(?=' + pattern.source + ')', pattern.flags);
+            if (escapedRegex.test(message)) {
+                return message.replace(escapedRegex, '');
             }
             return message.replace(pattern, replacement);
         };
@@ -112,7 +114,7 @@ export async function onLoad() {
         // "tomorrow"
         message = checkBackslash(/tomorrow/g, `<t:${Math.floor(Date.now() / 1000) + 86400}:R>`);
 
-        message = message.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => codeBlocks[parseInt(index)]);
+        message = message.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => code[parseInt(index)]);
 
         req.body.content = message;
         return send(req);
