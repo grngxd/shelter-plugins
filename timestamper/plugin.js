@@ -14,13 +14,22 @@ async function onLoad() {
 			code.push(match);
 			return `__CODE_BLOCK_${code.length - 1}__`;
 		});
+		const UNIT_SECONDS = {
+			second: 1,
+			minute: 60,
+			hour: 3600,
+			day: 86400,
+			week: 604800,
+			month: 2628e3,
+			year: 31536e3
+		};
 		const checkBackslash = (pattern, replacement) => {
 			if (typeof message !== "string") return message;
 			const escapedRegex = new RegExp("\\\\(?=" + pattern.source + ")", pattern.flags);
 			if (escapedRegex.test(message)) return message.replace(escapedRegex, "");
 			return message.replace(pattern, replacement);
 		};
-		message = checkBackslash(/([a-zA-Z]+), (\d{1,2}) ([a-zA-Z]+) (\d{4}) (\d{1,2}):(\d{1,2})/g, (match, _, day, month, year, hour, minute) => {
+		message = checkBackslash(/([a-zA-Z]+), (\d{1,2}) ([a-zA-Z]+) (\d{4}) (\d{1,2}):(\d{1,2})/g, (match, _p, day, month, year, hour, minute) => {
 			const unix = Math.floor(new Date(`${month} ${day}, ${year} ${hour}:${minute}`).getTime() / 1e3).toString();
 			return `<t:${unix}:F>`;
 		});
@@ -45,40 +54,16 @@ async function onLoad() {
 			return `<t:${unix}:t>`;
 		});
 		message = checkBackslash(/(\d+) (second|minute|hour|day|week|month|year)s? ago/g, (match, time, unit) => {
-			const unix = Math.floor(Date.now() / 1e3) - time * {
-				second: 1,
-				minute: 60,
-				hour: 3600,
-				day: 86400,
-				week: 604800,
-				month: 2628e3,
-				year: 31536e3
-			}[unit];
+			const unix = Math.floor(Date.now() / 1e3) - parseInt(time) * UNIT_SECONDS[unit];
 			return `<t:${unix}:R>`;
 		});
 		message = checkBackslash(/an? (second|minute|hour|day|week|month|year) ago/g, (match, unit) => {
-			const unix = Math.floor(Date.now() / 1e3) - {
-				second: 1,
-				minute: 60,
-				hour: 3600,
-				day: 86400,
-				week: 604800,
-				month: 2628e3,
-				year: 31536e3
-			}[unit];
+			const unix = Math.floor(Date.now() / 1e3) - UNIT_SECONDS[unit];
 			return `<t:${unix}:R>`;
 		});
 		message = checkBackslash(/yesterday/g, `<t:${Math.floor(Date.now() / 1e3) - 86400}:R>`);
 		message = checkBackslash(/in (\d+) (second|minute|hour|day|week|month|year)s?/g, (match, time, unit) => {
-			const unix = Math.floor(Date.now() / 1e3) + time * {
-				second: 1,
-				minute: 60,
-				hour: 3600,
-				day: 86400,
-				week: 604800,
-				month: 2628e3,
-				year: 31536e3
-			}[unit];
+			const unix = Math.floor(Date.now() / 1e3) + parseInt(time) * UNIT_SECONDS[unit];
 			return `<t:${unix}:R>`;
 		});
 		message = checkBackslash(/tomorrow/g, `<t:${Math.floor(Date.now() / 1e3) + 86400}:R>`);
